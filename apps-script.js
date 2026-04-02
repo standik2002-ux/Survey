@@ -4,16 +4,16 @@
 // Extensions > Apps Script, verwijder alles en
 // plak deze code. Daarna: Deploy > New deployment >
 // Web app > Execute as: Me > Who has access: Anyone
-// Kopieer de URL en geef die aan Claude.
 // ─────────────────────────────────────────────
 
 const SHEET_NAME = 'Responses';
 
-function doPost(e) {
+function doGet(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName(SHEET_NAME);
 
+    // Zorg dat de sheet bestaat met headers
     if (!sheet) {
       sheet = ss.insertSheet(SHEET_NAME);
       sheet.appendRow([
@@ -25,31 +25,23 @@ function doPost(e) {
       ]);
     }
 
-    const data = JSON.parse(e.parameter.data);
-    sheet.appendRow([
-      data.timestamp,
-      data.q1, data.q2, data.q3, data.q4, data.q5,
-      Array.isArray(data.q6) ? data.q6.join(', ') : (data.q6 || ''),
-      data.q7, data.q8, data.q9,
-      data.q10 || ''
-    ]);
+    // Als er data meegestuurd wordt: sla op
+    if (e.parameter && e.parameter.data) {
+      const data = JSON.parse(e.parameter.data);
+      sheet.appendRow([
+        data.timestamp,
+        data.q1, data.q2, data.q3, data.q4, data.q5,
+        Array.isArray(data.q6) ? data.q6.join(', ') : (data.q6 || ''),
+        data.q7, data.q8, data.q9,
+        data.q10 || ''
+      ]);
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: 'ok' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'ok' }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doGet(e) {
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(SHEET_NAME);
-
-    if (!sheet || sheet.getLastRow() <= 1) {
+    // Anders: stuur alle antwoorden terug voor het dashboard
+    if (sheet.getLastRow() <= 1) {
       return ContentService
         .createTextOutput(JSON.stringify([]))
         .setMimeType(ContentService.MimeType.JSON);
@@ -72,6 +64,7 @@ function doGet(e) {
     return ContentService
       .createTextOutput(JSON.stringify(rows))
       .setMimeType(ContentService.MimeType.JSON);
+
   } catch (err) {
     return ContentService
       .createTextOutput(JSON.stringify({ error: err.toString() }))

@@ -537,11 +537,9 @@
       q10: document.getElementById('q10').value.trim()
     };
 
-    // Stuur naar Google Sheets (werkt op alle apparaten)
+    // Stuur naar Google Sheets via GET (werkt op alle apparaten)
     if (SCRIPT_URL !== 'APPS_SCRIPT_URL_HIER') {
-      const formData = new URLSearchParams();
-      formData.append('data', JSON.stringify(response));
-      fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+      fetch(SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(response)));
     }
 
     // Sla ook lokaal op als backup
