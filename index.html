@@ -443,6 +443,15 @@
 </div>
 
 <script>
+  // ── Backend URL (wordt ingevuld na Apps Script setup) ──
+  const SCRIPT_URL = 'APPS_SCRIPT_URL_HIER';
+
+  // ── Toon bedankpagina als enquête al ingevuld is ──
+  if (localStorage.getItem('ai_survey_done') === '1') {
+    document.getElementById('form-wrapper').style.display = 'none';
+    document.getElementById('thank-you').style.display = 'block';
+  }
+
   // Voeg min/max labels toe onder elke Likert-schaal (voor mobiel)
   document.querySelectorAll('.likert-grid').forEach(grid => {
     const labels = grid.querySelectorAll('.likert-option label');
@@ -528,9 +537,20 @@
       q10: document.getElementById('q10').value.trim()
     };
 
+    // Stuur naar Google Sheets (werkt op alle apparaten)
+    if (SCRIPT_URL !== 'APPS_SCRIPT_URL_HIER') {
+      const formData = new URLSearchParams();
+      formData.append('data', JSON.stringify(response));
+      fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+    }
+
+    // Sla ook lokaal op als backup
     const existing = JSON.parse(localStorage.getItem('ai_survey_responses') || '[]');
     existing.push(response);
     localStorage.setItem('ai_survey_responses', JSON.stringify(existing));
+
+    // Markeer als ingevuld zodat terugknop de bedankpagina toont
+    localStorage.setItem('ai_survey_done', '1');
 
     document.getElementById('form-wrapper').style.display = 'none';
     document.getElementById('thank-you').style.display = 'block';

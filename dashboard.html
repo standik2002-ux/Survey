@@ -403,7 +403,8 @@
 </div>
 
 <script>
-  // ── Auth ──────────────────────────────────────────────
+  // ── Backend URL (wordt ingevuld na Apps Script setup) ──
+  const SCRIPT_URL = 'APPS_SCRIPT_URL_HIER';
   function doLogin() {
     const u = document.getElementById('username').value;
     const p = document.getElementById('password').value;
@@ -529,16 +530,32 @@
     return (vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1);
   }
 
-  function renderDashboard() {
-    const responses = JSON.parse(localStorage.getItem('ai_survey_responses') || '[]');
+  async function renderDashboard() {
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('data-section').style.display = 'none';
+
+    let responses = [];
+
+    // Haal data op uit Google Sheets via Apps Script
+    if (SCRIPT_URL !== 'APPS_SCRIPT_URL_HIER') {
+      try {
+        const res = await fetch(SCRIPT_URL);
+        responses = await res.json();
+      } catch (err) {
+        console.warn('Fout bij ophalen data:', err);
+      }
+    }
+
+    // Fallback: lokale data als er geen Sheets data is
+    if (responses.length === 0) {
+      responses = JSON.parse(localStorage.getItem('ai_survey_responses') || '[]');
+    }
 
     if (responses.length === 0) {
       document.getElementById('empty-state').style.display = 'block';
-      document.getElementById('data-section').style.display = 'none';
       return;
     }
 
-    document.getElementById('empty-state').style.display = 'none';
     document.getElementById('data-section').style.display = 'block';
 
     // Stats
