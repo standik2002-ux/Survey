@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR-code – Gebruik en Vertrouwen in AI</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      max-width: 420px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      color: #64748b;
+      margin-bottom: 32px;
+    }
+
+    #qr-canvas {
+      display: block;
+      margin: 0 auto 28px;
+      border-radius: 12px;
+    }
+
+    .url {
+      font-size: 0.82rem;
+      color: #6366f1;
+      word-break: break-all;
+      margin-bottom: 28px;
+      background: #f5f3ff;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .download-btn {
+      display: inline-block;
+      padding: 13px 28px;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .download-btn:hover {
+      background: #4f46e5;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Gebruik en Vertrouwen in AI</h1>
+    <p class="subtitle">Scan de QR-code om de enquête in te vullen</p>
+
+    <canvas id="qr-canvas"></canvas>
+
+    <div class="url">https://standik2002-ux.github.io/Survey/</div>
+
+    <button class="download-btn" onclick="downloadQR()">Download QR-code</button>
+
+    <p class="footer">Het invullen duurt ongeveer 2 minuten.</p>
+  </div>
+
+  <script>
+    const url = 'https://standik2002-ux.github.io/Survey/';
+
+    QRCode.toCanvas(document.getElementById('qr-canvas'), url, {
+      width: 240,
+      margin: 2,
+      color: {
+        dark: '#1a1a2e',
+        light: '#ffffff'
+      }
+    });
+
+    function downloadQR() {
+      const canvas = document.getElementById('qr-canvas');
+      const link = document.createElement('a');
+      link.download = 'qrcode-enquete.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>
