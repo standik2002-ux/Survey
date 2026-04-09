@@ -436,15 +436,14 @@
   }
 
   function clearData() {
-    if (confirm('Weet je zeker dat je alle enquêtedata wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
-      fetch(FIREBASE_URL + '/responses.json', { method: 'DELETE' })
-        .then(() => renderDashboard())
-        .catch(() => alert('Kon data niet wissen. Controleer de Firebase verbinding.'));
+    if (confirm('Weet je zeker dat je de lokale data wilt wissen?')) {
+      localStorage.removeItem('ai_survey_responses');
+      renderDashboard();
     }
   }
 
-  // ── Firebase config ───────────────────────────────────
-  const FIREBASE_URL = 'https://ai-enquete-default-rtdb.firebaseio.com';
+  // ── Google Sheets backend ─────────────────────────────
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwwD9CkRZcLmuMskBtcVmNxat6lFH8Ofc-rHzZLvsunqKNakrfLToMufxgs_SS-MmKG/exec';
 
   // ── Chart helpers ─────────────────────────────────────
   const COLORS = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6'];
@@ -632,16 +631,12 @@
   }
 
   function renderDashboard() {
-    fetch(FIREBASE_URL + '/responses.json')
+    fetch(SHEETS_URL)
       .then(r => r.json())
       .then(data => {
-        // Firebase geeft null terug als er geen data is, of een object met responses
-        let firebaseResponses = [];
-        if (data && typeof data === 'object' && !data.error) {
-          firebaseResponses = Array.isArray(data) ? data : Object.values(data);
-        }
+        const sheetsResponses = Array.isArray(data) ? data : [];
         const localResponses = getLocalResponses();
-        renderWithResponses([...firebaseResponses, ...localResponses]);
+        renderWithResponses([...sheetsResponses, ...localResponses]);
       })
       .catch(() => {
         renderWithResponses(getLocalResponses());
