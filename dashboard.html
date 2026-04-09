@@ -633,20 +633,18 @@
 
   function renderDashboard() {
     fetch(FIREBASE_URL + '/responses.json')
-      .then(r => {
-        if (!r.ok) throw new Error('Firebase niet beschikbaar');
-        return r.json();
-      })
+      .then(r => r.json())
       .then(data => {
-        const firebaseResponses = data ? Object.values(data) : [];
+        // Firebase geeft null terug als er geen data is, of een object met responses
+        let firebaseResponses = [];
+        if (data && typeof data === 'object' && !data.error) {
+          firebaseResponses = Array.isArray(data) ? data : Object.values(data);
+        }
         const localResponses = getLocalResponses();
-        const all = [...firebaseResponses, ...localResponses];
-        renderWithResponses(all);
+        renderWithResponses([...firebaseResponses, ...localResponses]);
       })
       .catch(() => {
-        // Firebase niet bereikbaar – toon alleen lokale data
-        const localResponses = getLocalResponses();
-        renderWithResponses(localResponses);
+        renderWithResponses(getLocalResponses());
       });
   }
 </script>
